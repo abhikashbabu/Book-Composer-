@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📖 Book Reader - Book Composer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <h1>📚 Book Composer</h1>
+        </div>
+        <div class="navbar-menu">
+            <a href="index.html" class="nav-link">🏠 Home</a>
+            <a href="reader.html" class="nav-link active">📖 Reader</a>
+            <a href="export.html" class="nav-link">🖨️ Print Export</a>
+        </div>
+        <button class="btn-theme" onclick="toggleTheme()">🌙</button>
+    </nav>
+
+    <main class="reader-container">
+        <div class="reader-controls">
+            <div class="control-group">
+                <input type="file" id="pdfFile" accept=".pdf" onchange="uploadPDF(event)" style="display:none;">
+                <button class="btn btn-primary" onclick="document.getElementById('pdfFile').click()">📤 Upload PDF</button>
+                <span id="loadingStatus" class="status-text"></span>
+            </div>
+
+            <div class="control-group" id="navigationControls" style="display:none;">
+                <button class="btn btn-secondary" onclick="previousPage()">← Previous</button>
+                <div class="page-info">
+                    <span>Page <span id="currentPage">1</span> - <span id="nextPage">2</span> of <span id="totalPages">0</span></span>
+                </div>
+                <button class="btn btn-secondary" onclick="nextPage()">Next →</button>
+
+                <button class="btn btn-secondary" onclick="zoomOut()">🔍-</button>
+                <span class="zoom-display"><span id="zoomLevel">100</span>%</span>
+                <button class="btn btn-secondary" onclick="zoomIn()">🔍+</button>
+            </div>
+        </div>
+
+        <div class="book-viewer" id="bookViewer">
+            <div class="empty-state">
+                <p>📚 Upload a PDF file to start reading</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Book Composer. All rights reserved.</p>
+    </footer>
+
+    <script src="reader.js"></script>
+</body>
+</html>
