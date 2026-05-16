@@ -35,20 +35,16 @@
 ```bash
 cd Book-Composer-
 php -S localhost:8000
-```
 Open: http://localhost:8000
 
-### Option 2: Using Apache/Nginx
+Option 2: Using Apache/Nginx
 Copy all files to your web server directory and access via browser.
 
-### Option 3: GitHub Pages
+Option 3: GitHub Pages
 All static files are compatible with GitHub Pages.
 
----
-
-## 📁 File Structure
-
-```
+📁 File Structure
+Code
 Book-Composer-/
 ├── index.html          # Home page
 ├── reader.html         # PDF reader
@@ -61,148 +57,95 @@ Book-Composer-/
 ├── export.php          # Export handler
 ├── bookmark.php        # Bookmark management
 └── README.md           # This file
-```
+🛠️ Technologies
+HTML5 - Semantic markup
+CSS3 - Modern styling with animations
+Vanilla JavaScript - No frameworks
+PDF.js - PDF rendering
+PHP - Backend processing
+📚 Usage
+1. Upload PDF
+Go to Reader page
+Click "📤 Upload PDF"
+Select your PDF file
+2. Read
+Navigate pages with buttons
+Use zoom controls
+Toggle night mode
+View dual-page spreads
+3. Export
+Go to Print Export page
+Configure settings
+Click "📥 Export PDF"
+Download print-ready file
+🎨 Customization
+Colors
+Edit :root variables in style.css:
 
----
-
-## 🛠️ Technologies
-
-- **HTML5** - Semantic markup
-- **CSS3** - Modern styling with animations
-- **Vanilla JavaScript** - No frameworks
-- **PDF.js** - PDF rendering
-- **PHP** - Backend processing
-
----
-
-## 📚 Usage
-
-### 1. Upload PDF
-- Go to Reader page
-- Click "📤 Upload PDF"
-- Select your PDF file
-
-### 2. Read
-- Navigate pages with buttons
-- Use zoom controls
-- Toggle night mode
-- View dual-page spreads
-
-### 3. Export
-- Go to Print Export page
-- Configure settings
-- Click "📥 Export PDF"
-- Download print-ready file
-
----
-
-## 🎨 Customization
-
-### Colors
-Edit `:root` variables in `style.css`:
-```css
+CSS
 :root {
   --primary-color: #4299e1;
   --bg-primary: #ffffff;
   /* ... more variables ... */
 }
-```
+Paper Sizes
+Edit paperSizes object in export.js:
 
-### Paper Sizes
-Edit `paperSizes` object in `export.js`:
-```javascript
+JavaScript
 const paperSizes = {
     'A4': { width: 210, height: 297 },
     'Custom': { width: 100, height: 100 }
 };
-```
-
----
-
-## 🚀 Deployment
-
-### GitHub Pages
-1. Push to GitHub
-2. Enable Pages in settings
-3. Select `main` branch
-4. Your site is live!
-
-### Shared Hosting
-1. FTP all files to server
-2. Make sure PHP is enabled
-3. Access via your domain
-
-### Local Testing
-```bash
+🚀 Deployment
+GitHub Pages
+Push to GitHub
+Enable Pages in settings
+Select main branch
+Your site is live!
+Shared Hosting
+FTP all files to server
+Make sure PHP is enabled
+Access via your domain
+Local Testing
+bash
 php -S 0.0.0.0:8000
-```
-
----
-
-## 📝 API Endpoints
-
-### Upload PDF
-```
+📝 API Endpoints
+Upload PDF
+Code
 POST /upload.php
 File: PDF file
-```
-
-### Export PDF
-```
+Export PDF
+Code
 POST /export.php
 JSON: Export settings
-```
-
-### Bookmarks
-```
+Bookmarks
+Code
 GET  /bookmark.php?action=list
 POST /bookmark.php?action=save
-```
-
----
-
-## 🌐 Browser Support
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
----
-
-## 📦 File Sizes
-
-- `style.css` - ~15 KB
-- `script.js` - ~3 KB
-- `reader.js` - ~4 KB
-- `export.js` - ~3 KB
-- **Total** - ~25 KB (excluding PDF.js library)
-
----
-
-## ✅ Checklist
-
-- ✅ No npm required
-- ✅ No build process
-- ✅ No minification needed
-- ✅ Pure vanilla JavaScript
-- ✅ Mobile responsive
-- ✅ Dark mode support
-- ✅ Fast loading
-- ✅ Easy to customize
-
----
-
-## 🤝 Contributing
-
+🌐 Browser Support
+Chrome 90+
+Firefox 88+
+Safari 14+
+Edge 90+
+📦 File Sizes
+style.css - ~15 KB
+script.js - ~3 KB
+reader.js - ~4 KB
+export.js - ~3 KB
+Total - ~25 KB (excluding PDF.js library)
+✅ Checklist
+✅ No npm required
+✅ No build process
+✅ No minification needed
+✅ Pure vanilla JavaScript
+✅ Mobile responsive
+✅ Dark mode support
+✅ Fast loading
+✅ Easy to customize
+🤝 Contributing
 Feel free to fork, modify, and improve!
 
----
-
-## 📄 License
-
+📄 License
 MIT License - Free to use!
 
----
-
-**Made with ❤️ for book lovers** 📚✨
+Made with ❤️ for book lovers 📚✨
