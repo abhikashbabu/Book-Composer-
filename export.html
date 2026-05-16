@@ -26,69 +26,21 @@
                 <h3>Export Configuration</h3>
 
                 <div class="form-group">
-                    <label for="paperSize">Paper Size</label>
+                    <label for="exportSourceFile">📂 Select PDF to Re-format</label>
+                    <input type="file" id="exportSourceFile" accept=".pdf" class="form-control" required>
+                    <small style="color: var(--text-secondary); display: block; margin-top: 5px;">
+                        Upload your A5 book, we'll format it perfectly onto A4 sheets (2 pages per sheet).
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="paperSize">Target Paper Size</label>
                     <select id="paperSize" onchange="updatePreview()">
-                        <option value="A4">A4 (210 × 297 mm)</option>
-                        <option value="A5">A5 (148 × 210 mm)</option>
-                        <option value="Letter">Letter (8.5" × 11")</option>
-                        <option value="Legal">Legal (8.5" × 14")</option>
-                        <option value="Custom">Custom Size</option>
+                        <option value="A4">A4 (210 × 297 mm) - 2 Pages per sheet</option>
                     </select>
                 </div>
-
-                <div class="form-group" id="customSizeGroup" style="display:none;">
-                    <label for="customWidth">Width (mm)</label>
-                    <input type="number" id="customWidth" value="210" onchange="updatePreview()">
-                    <label for="customHeight">Height (mm)</label>
-                    <input type="number" id="customHeight" value="297" onchange="updatePreview()">
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="duplex" checked onchange="updatePreview()">
-                        Double-Sided Printing (Duplex)
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label for="colorProfile">Color Profile</label>
-                    <select id="colorProfile" onchange="updatePreview()">
-                        <option value="RGB">RGB</option>
-                        <option value="CMYK">CMYK</option>
-                        <option value="Grayscale">Grayscale</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Margins (mm)</label>
-                    <div class="margin-inputs">
-                        <input type="number" id="marginTop" value="10" placeholder="Top" onchange="updatePreview()">
-                        <input type="number" id="marginBottom" value="10" placeholder="Bottom" onchange="updatePreview()">
-                        <input type="number" id="marginLeft" value="10" placeholder="Left" onchange="updatePreview()">
-                        <input type="number" id="marginRight" value="10" placeholder="Right" onchange="updatePreview()">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="bindingMargin">Binding Margin (mm)</label>
-                    <input type="number" id="bindingMargin" value="5" onchange="updatePreview()">
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="cropMarks" checked onchange="updatePreview()">
-                        Include Crop Marks
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="bleedMarks" checked onchange="updatePreview()">
-                        Include Bleed Marks
-                    </label>
-                </div>
-
-                <button class="btn btn-primary btn-large" onclick="exportPDF()">📥 Export PDF</button>
+                
+                <button class="btn btn-primary btn-large" onclick="exportPDF()">📥 Export Booklet PDF</button>
             </div>
 
             <div class="preview-panel">
@@ -96,22 +48,13 @@
                 <div class="preview-box">
                     <div class="preview-content" id="previewContent">
                         <h4 id="previewSize">A4 (210 × 297 mm)</h4>
-                        <p><strong>Margins:</strong> <span id="previewMargins">10mm all sides</span></p>
-                        <p><strong>Color Profile:</strong> <span id="previewColor">RGB</span></p>
-                        <p><strong>Double-Sided:</strong> <span id="previewDuplex">Yes</span></p>
-                        <p><strong>Binding Margin:</strong> <span id="previewBinding">5mm</span></p>
-                        <p><strong>Crop Marks:</strong> <span id="previewCrop">Yes</span></p>
-                        <p><strong>Bleed Marks:</strong> <span id="previewBleed">Yes</span></p>
+                        <p><strong>Layout:</strong> A5 Booklet on A4</p>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-
-    <footer class="footer">
-        <p>&copy; 2026 Book Composer. All rights reserved.</p>
-    </footer>
-
     <script src="export.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

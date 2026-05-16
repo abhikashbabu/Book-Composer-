@@ -1,4 +1,4 @@
-// Theme Toggle
+// Theme Toggle Logic
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
@@ -11,7 +11,7 @@ function updateThemeButton() {
     btn.textContent = isDarkMode ? '☀️' : '🌙';
 }
 
-// Load theme from localStorage
+// Load theme from localStorage on page load
 window.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
@@ -20,7 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
     updateThemeButton();
 });
 
-// Smooth scroll
+// Smooth scroll logic for any anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
