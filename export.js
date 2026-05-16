@@ -69,6 +69,12 @@ function exportPDF() {
         bleedMarks: document.getElementById('bleedMarks').checked
     };
 
+    // Show loading state
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = '⏳ Exporting...';
+    btn.disabled = true;
+
     // Send to backend
     fetch('export.php', {
         method: 'POST',
@@ -77,8 +83,17 @@ function exportPDF() {
         },
         body: JSON.stringify(settings)
     })
-    .then(response => response.blob())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.blob();
+    })
     .then(blob => {
+        if (blob.size === 0) {
+            throw new Error('Empty response from server');
+        }
+        
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -87,12 +102,21 @@ function exportPDF() {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+        
+        // Reset button
+        btn.textContent = originalText;
+        btn.disabled = false;
+        alert('✅ PDF exported successfully!');
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error exporting PDF');
+        btn.textContent = originalText;
+        btn.disabled = false;
+        alert('❌ Error exporting PDF: ' + error.message);
     });
 }
 
 // Initialize preview
-updatePreview();
+window.addEventListener('load', function() {
+    updatePreview();
+});

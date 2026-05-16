@@ -39,7 +39,7 @@
                 <div class="form-group" id="customSizeGroup" style="display:none;">
                     <label for="customWidth">Width (mm)</label>
                     <input type="number" id="customWidth" value="210" onchange="updatePreview()">
-                    <label for="customHeight">Height (mm)</label>
+                    <label for="customHeight" style="margin-top: 10px;">Height (mm)</label>
                     <input type="number" id="customHeight" value="297" onchange="updatePreview()">
                 </div>
 
@@ -92,7 +92,7 @@
             </div>
 
             <div class="preview-panel">
-                <h3>Preview</h3>
+                <h3>📋 Live Preview</h3>
                 <div class="preview-box">
                     <div class="preview-content" id="previewContent">
                         <h4 id="previewSize">A4 (210 × 297 mm)</h4>
@@ -112,6 +112,7 @@
         <p>&copy; 2026 Book Composer. All rights reserved.</p>
     </footer>
 
+    <script src="script.js"></script>
     <script src="export.js"></script>
 </body>
 </html>

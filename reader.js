@@ -5,6 +5,7 @@ let pdfDoc = null;
 let currentPage = 1;
 let zoom = 100;
 let totalPages = 0;
+let currentFileName = '';
 
 // Upload PDF
 async function uploadPDF(event) {
@@ -12,7 +13,8 @@ async function uploadPDF(event) {
     if (!file) return;
 
     const statusEl = document.getElementById('loadingStatus');
-    statusEl.textContent = 'Loading...';
+    statusEl.textContent = '⏳ Loading...';
+    currentFileName = file.name;
 
     try {
         const arrayBuffer = await file.arrayBuffer();
@@ -24,13 +26,14 @@ async function uploadPDF(event) {
 
         currentPage = 1;
         zoom = 100;
-        renderPages();
+        document.getElementById('zoomLevel').textContent = zoom;
+        await renderPages();
 
         statusEl.textContent = `✅ Loaded: ${file.name} (${totalPages} pages)`;
     } catch (error) {
         console.error('Error loading PDF:', error);
         statusEl.textContent = '❌ Error loading PDF';
-        alert('Error loading PDF file');
+        alert('Error loading PDF file: ' + error.message);
     }
 }
 
@@ -38,6 +41,8 @@ async function uploadPDF(event) {
 async function renderPages() {
     const viewer = document.getElementById('bookViewer');
     viewer.innerHTML = '';
+
+    if (!pdfDoc) return;
 
     const pageNumbers = [currentPage, currentPage + 1];
     const spread = document.createElement('div');
@@ -48,7 +53,8 @@ async function renderPages() {
 
         try {
             const page = await pdfDoc.getPage(pageNum);
-            const viewport = page.getViewport({ scale: zoom / 100 });
+            const scale = zoom / 100;
+            const viewport = page.getViewport({ scale: scale });
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
 
@@ -108,3 +114,24 @@ function updatePageInfo() {
     document.getElementById('currentPage').textContent = currentPage;
     document.getElementById('nextPage').textContent = Math.min(currentPage + 1, totalPages);
 }
+
+// Keyboard navigation
+document.addEventListener('keydown', function(event) {
+    if (!pdfDoc) return;
+    
+    switch(event.key) {
+        case 'ArrowLeft':
+            previousPage();
+            break;
+        case 'ArrowRight':
+            nextPage();
+            break;
+        case '+':
+        case '=':
+            zoomIn();
+            break;
+        case '-':
+            zoomOut();
+            break;
+    }
+});
