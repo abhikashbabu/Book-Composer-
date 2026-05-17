@@ -2,28 +2,75 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 
 let pdfDoc = null;
 let totalPages = 0;
+let currentBookUrl = '';
 
+// Check if a book URL is shared when page loads
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedBookPath = urlParams.get('book');
+    if (sharedBookPath) {
+        loadPDFFromServer(sharedBookPath);
+    }
+});
+
+// Load PDF from Server (When accessed via shared link)
+async function loadPDFFromServer(path) {
+    const statusEl = document.getElementById('loadingStatus');
+    statusEl.textContent = '⏳ Loading shared book...';
+    currentBookUrl = path;
+
+    try {
+        const response = await fetch(path);
+        if (!response.ok) throw new Error("File not found on server");
+        const arrayBuffer = await response.arrayBuffer();
+        
+        pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        totalPages = pdfDoc.numPages;
+        
+        setupViewerAfterLoad('Shared Book');
+    } catch (error) {
+        console.error('Error:', error);
+        statusEl.textContent = '❌ Shared book not found or expired.';
+    }
+}
+
+// Upload local PDF & Send to Server for Sharing
 async function uploadPDF(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const statusEl = document.getElementById('loadingStatus');
-    statusEl.textContent = '⏳ Loading book... Please wait.';
+    statusEl.textContent = '⏳ Loading & Uploading book...';
 
+    // 1. Load locally for instant view
     try {
         const arrayBuffer = await file.arrayBuffer();
         pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         totalPages = pdfDoc.numPages;
+        setupViewerAfterLoad(file.name);
 
-        document.getElementById('navigationControls').style.display = 'flex';
-        await renderPages();
-        statusEl.textContent = `✅ Loaded: ${file.name} (${totalPages} pages)`;
+        // 2. Upload to server in background so user can share it
+        const formData = new FormData();
+        formData.append('pdf', file);
+        
+        fetch('upload.php', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) currentBookUrl = data.path; // Store server path
+        }).catch(err => console.error("Upload for sharing failed", err));
+
     } catch (error) {
-        console.error('Error loading PDF:', error);
         statusEl.textContent = '❌ Error loading PDF file';
     }
 }
 
+// Common function to setup UI after PDF is loaded
+async function setupViewerAfterLoad(bookName) {
+    document.getElementById('navigationControls').style.display = 'flex';
+    document.getElementById('extraControls').style.display = 'flex'; // Show Fullscreen & Share
+    document.getElementById('loadingStatus').textContent = `✅ Loaded: ${bookName}`;
+    await renderPages();
+}
 async function renderPages() {
     const viewer = document.getElementById('bookViewer');
     viewer.innerHTML = `<div class="book"><div id="pages" class="pages"></div></div>`;
@@ -86,4 +133,33 @@ function previousPage() {
 function nextPage() {
     const unflippedOdd = document.querySelector('.page:nth-child(odd):not(.flipped)');
     if (unflippedOdd) unflippedOdd.click();
+}
+function toggleFullScreen() {
+    const viewer = document.getElementById('bookViewer');
+    if (!document.fullscreenElement) {
+        viewer.requestFullscreen().catch(err => {
+            alert(`Error enabling fullscreen: ${err.message}`);
+        });
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+function shareBook() {
+    const shareBtn = document.getElementById('shareBtn');
+    if (!currentBookUrl) {
+        alert("Please wait for the book to finish uploading to the server before sharing!");
+        return;
+    }
+
+    // Create the full shareable URL
+    const shareUrl = window.location.origin + window.location.pathname + '?book=' + encodeURIComponent(currentBookUrl);
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        shareBtn.textContent = '✅ Link Copied!';
+        setTimeout(() => shareBtn.textContent = '🔗 Share Link', 2000);
+    }).catch(err => {
+        alert("Failed to copy URL. Here is the link: \n" + shareUrl);
+    });
 }

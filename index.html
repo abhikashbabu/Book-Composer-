@@ -19,40 +19,55 @@
         <button class="btn-theme" onclick="toggleTheme()">🌙</button>
     </nav>
 
-    <main class="container">
-        <section class="hero">
-            <h2>Welcome to Book Composer</h2>
-            <p>Advanced Digital Book Reading & Publishing Platform</p>
-            <div class="hero-features">
-                <div class="feature-card">
-                    <h3>📖 Realistic Reading</h3>
-                    <p>Experience immersive 3D page flip animations with smooth transitions</p>
+   <main class="container">
+        <section class="hero" style="display: flex; align-items: center; justify-content: space-between; gap: 40px; flex-wrap: wrap;">
+            <div class="hero-content" style="flex: 1; min-width: 300px; text-align: left;">
+                <h2 style="font-size: 54px; line-height: 1.2;">Welcome to <br><span style="color: var(--primary-color);">Book Composer</span></h2>
+                <p style="font-size: 20px; color: var(--text-secondary); margin: 20px 0 30px;">Your Advanced Digital Book Reading, Publishing, and Smart A4 Printing Platform.</p>
+                <div class="button-group" style="justify-content: flex-start;">
+                    <a href="reader.html" class="btn btn-primary btn-large" style="width: auto; padding: 15px 30px; font-size: 18px;">📖 Start Reading</a>
+                    <a href="export.html" class="btn btn-secondary btn-large" style="width: auto; padding: 15px 30px; font-size: 18px;">🖨️ Export PDF</a>
                 </div>
-                <div class="feature-card">
-                    <h3>🖨️ Professional Print</h3>
-                    <p>Export books in multiple sizes with professional print-ready PDFs</p>
-                </div>
-                <div class="feature-card">
-                    <h3>⭐ Easy to Use</h3>
-                    <p>Simple interface with powerful features for everyone</p>
-                </div>
-                <div class="feature-card">
-                    <h3>🎨 Customize</h3>
-                    <p>Configure margins, bindings, colors, and more</p>
+            </div>
+            
+            <div class="hero-demo" style="flex: 1; display: flex; justify-content: center; perspective: 1000px;">
+                <div class="demo-book-container">
+                  <div class="demo-book">
+    <div class="demo-page page-1 cover-page">
+        <img src="uploads/cover.png" alt="Premium Book Cover">
+    </div>
+    
+    <div class="demo-page page-2"></div>
+    
+    <div class="demo-page page-3">
+        <div class="page-content">
+            <h3>Book Composer</h3>
+            <p>Smart Reading.</p>
+            <div class="mock-text"></div>
+            <div class="mock-text"></div>
+            <div class="mock-text short"></div>
+        </div>
+    </div>
+    
+    <div class="demo-page page-4"></div>
+    
+    <div class="demo-page page-5">
+        <div class="page-content">
+            <h3>Easy Export</h3>
+            <p>Print A5 on A4.</p>
+            <div class="mock-image"></div>
+        </div>
+    </div>
+    
+    <div class="demo-page page-6"></div>
+</div>
                 </div>
             </div>
         </section>
 
-        <section class="cta-section">
-            <h3>Get Started Today</h3>
-            <div class="button-group">
-                <a href="reader.html" class="btn btn-primary">📖 Start Reading</a>
-                <a href="export.html" class="btn btn-secondary">🖨️ Export PDF</a>
-            </div>
-        </section>
-
-        <section class="features-section">
+        <section class="features-section" style="margin-top: 80px;">
             <h3>Key Features</h3>
+
             <div class="features-grid">
                 <div class="feature">
                     <span class="feature-icon">🎬</span>
