@@ -1,137 +1,89 @@
-// PDF.js setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 let pdfDoc = null;
-let currentPage = 1;
-let zoom = 100;
 let totalPages = 0;
-let currentFileName = '';
 
-// Upload PDF
 async function uploadPDF(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const statusEl = document.getElementById('loadingStatus');
-    statusEl.textContent = '⏳ Loading...';
-    currentFileName = file.name;
+    statusEl.textContent = '⏳ Loading book... Please wait.';
 
     try {
         const arrayBuffer = await file.arrayBuffer();
         pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         totalPages = pdfDoc.numPages;
 
-        document.getElementById('totalPages').textContent = totalPages;
         document.getElementById('navigationControls').style.display = 'flex';
-
-        currentPage = 1;
-        zoom = 100;
-        document.getElementById('zoomLevel').textContent = zoom;
         await renderPages();
-
         statusEl.textContent = `✅ Loaded: ${file.name} (${totalPages} pages)`;
     } catch (error) {
         console.error('Error loading PDF:', error);
-        statusEl.textContent = '❌ Error loading PDF';
-        alert('Error loading PDF file: ' + error.message);
+        statusEl.textContent = '❌ Error loading PDF file';
     }
 }
 
-// Render pages
 async function renderPages() {
     const viewer = document.getElementById('bookViewer');
-    viewer.innerHTML = '';
+    viewer.innerHTML = `<div class="book"><div id="pages" class="pages"></div></div>`;
+    const pagesContainer = document.getElementById('pages');
 
-    if (!pdfDoc) return;
+    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        const page = await pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.5 }); 
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport: viewport }).promise;
 
-    const pageNumbers = [currentPage, currentPage + 1];
-    const spread = document.createElement('div');
-    spread.className = 'book-spread';
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'page';
+        pageDiv.appendChild(canvas);
+        pagesContainer.appendChild(pageDiv);
+    }
 
-    for (const pageNum of pageNumbers) {
-        if (pageNum > totalPages) continue;
+    if (totalPages % 2 !== 0) {
+        const endPageDiv = document.createElement('div');
+        endPageDiv.className = 'page';
+        endPageDiv.innerHTML = `
+            <div style="display:flex; height:100%; width:100%; align-items:center; justify-content:center; background:#f7fafc; color:#a0aec0; font-size:28px; font-weight:bold; font-family:sans-serif; flex-direction:column;">
+                <span style="font-size: 50px; margin-bottom: 15px;">📚</span>
+                <span>The End</span>
+            </div>`;
+        pagesContainer.appendChild(endPageDiv);
+    }
 
-        try {
-            const page = await pdfDoc.getPage(pageNum);
-            const scale = zoom / 100;
-            const viewport = page.getViewport({ scale: scale });
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-
-            await page.render({
-                canvasContext: context,
-                viewport: viewport
-            }).promise;
-
-            const pageDiv = document.createElement('div');
-            pageDiv.className = 'page';
-            const img = document.createElement('img');
-            img.className = 'page-image';
-            img.src = canvas.toDataURL();
-            pageDiv.appendChild(img);
-            spread.appendChild(pageDiv);
-
-        } catch (error) {
-            console.error(`Error rendering page ${pageNum}:`, error);
+    const pageElements = document.getElementsByClassName('page');
+    for(let i = 0; i < pageElements.length; i++) {
+        if (i % 2 === 0) {
+            pageElements[i].style.zIndex = (pageElements.length - i);
+        }
+        pageElements[i].pageNum = i + 1;
+        pageElements[i].onclick = function() {
+            if (this.pageNum % 2 === 0) {
+                this.classList.remove('flipped');
+                if(this.previousElementSibling) this.previousElementSibling.classList.remove('flipped');
+            } else {
+                this.classList.add('flipped');
+                if(this.nextElementSibling) this.nextElementSibling.classList.add('flipped');
+            }
         }
     }
 
-    viewer.appendChild(spread);
-    updatePageInfo();
+    setTimeout(() => {
+        const bookElement = document.querySelector('.book');
+        if(bookElement) bookElement.classList.add('loaded');
+    }, 150);
 }
 
-// Navigation
 function previousPage() {
-    currentPage = Math.max(1, currentPage - 2);
-    renderPages();
+    const flippedPages = document.querySelectorAll('.page.flipped');
+    if (flippedPages.length > 0) flippedPages[flippedPages.length - 1].click();
 }
 
 function nextPage() {
-    if (currentPage + 1 < totalPages) {
-        currentPage += 2;
-        renderPages();
-    }
+    const unflippedOdd = document.querySelector('.page:nth-child(odd):not(.flipped)');
+    if (unflippedOdd) unflippedOdd.click();
 }
-
-// Zoom
-function zoomIn() {
-    zoom = Math.min(200, zoom + 10);
-    document.getElementById('zoomLevel').textContent = zoom;
-    if (pdfDoc) renderPages();
-}
-
-function zoomOut() {
-    zoom = Math.max(50, zoom - 10);
-    document.getElementById('zoomLevel').textContent = zoom;
-    if (pdfDoc) renderPages();
-}
-
-// Update page info
-function updatePageInfo() {
-    document.getElementById('currentPage').textContent = currentPage;
-    document.getElementById('nextPage').textContent = Math.min(currentPage + 1, totalPages);
-}
-
-// Keyboard navigation
-document.addEventListener('keydown', function(event) {
-    if (!pdfDoc) return;
-    
-    switch(event.key) {
-        case 'ArrowLeft':
-            previousPage();
-            break;
-        case 'ArrowRight':
-            nextPage();
-            break;
-        case '+':
-        case '=':
-            zoomIn();
-            break;
-        case '-':
-            zoomOut();
-            break;
-    }
-});
