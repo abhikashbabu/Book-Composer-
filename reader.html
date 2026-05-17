@@ -19,14 +19,17 @@
         </div>
         <button class="btn-theme" onclick="toggleTheme()">🌙</button>
     </nav>
-   
 
     <main class="reader-container">
         <div class="reader-controls">
-            
-             <div class="control-group">
+            <div class="control-group">
                 <input type="file" id="pdfFile" accept=".pdf" onchange="uploadPDF(event)" style="display:none;">
                 <button class="btn btn-primary" onclick="document.getElementById('pdfFile').click()">📤 Upload PDF</button>
+                
+                <div id="uploadProgressContainer" style="display:none; width: 150px; height: 10px; background: var(--secondary-color); border-radius: 5px; overflow: hidden; margin: 0 15px; border: 1px solid var(--border-color);">
+                    <div id="uploadProgressBar" style="width: 0%; height: 100%; background: var(--primary-color); transition: width 0.1s linear;"></div>
+                </div>
+
                 <span id="loadingStatus" class="status-text"></span>
             </div>
 
@@ -38,25 +41,21 @@
             <div class="control-group" id="navigationControls" style="display:none;">
                 <button class="btn btn-secondary" onclick="previousPage()">← Previous</button>
                 <div class="page-info">
-                    <span>Page <span id="currentPage">1</span> - <span id="nextPage">2</span> of <span id="totalPages">0</span></span>
+                    <span>Pages Loaded: <span id="totalPages">0</span></span>
                 </div>
                 <button class="btn btn-secondary" onclick="nextPage()">Next →</button>
-
-                <button class="btn btn-secondary" onclick="zoomOut()">🔍-</button>
-                <span class="zoom-display"><span id="zoomLevel">100</span>%</span>
-                <button class="btn btn-secondary" onclick="zoomIn()">🔍+</button>
             </div>
         </div>
 
         <div class="book-viewer" id="bookViewer">
             <div class="empty-state">
-                <p>📚 Upload a PDF file to start reading</p>
+                <p>📚 Upload a PDF file to start reading with 3D Flip Effect</p>
             </div>
         </div>
     </main>
 
     <footer class="footer">
-        <p>&copy; 2026 Book Composer. All rights reserved.</p>
+        <p>&copy; 2026 Book Composer Platform. Built with Core PHP.</p>
     </footer>
 
     <script src="script.js"></script>

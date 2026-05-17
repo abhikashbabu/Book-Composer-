@@ -3,6 +3,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 let pdfDoc = null;
 let totalPages = 0;
 let currentBookUrl = '';
+let uploadErrorMessage = ''; 
 
 // Check if a book URL is shared when page loads
 window.addEventListener('DOMContentLoaded', () => {
@@ -34,13 +35,21 @@ async function loadPDFFromServer(path) {
     }
 }
 
-// Upload local PDF & Send to Server for Sharing
+// Upload local PDF & Send to Server with PROGRESS BAR
 async function uploadPDF(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Reset previous states
+    currentBookUrl = '';
+    uploadErrorMessage = '';
+    
     const statusEl = document.getElementById('loadingStatus');
-    statusEl.textContent = '⏳ Loading & Uploading book...';
+    const progressContainer = document.getElementById('uploadProgressContainer');
+    const progressBar = document.getElementById('uploadProgressBar');
+
+    statusEl.textContent = '⏳ Reading locally...';
+    if(progressContainer) progressContainer.style.display = 'none';
 
     // 1. Load locally for instant view
     try {
@@ -49,28 +58,72 @@ async function uploadPDF(event) {
         totalPages = pdfDoc.numPages;
         setupViewerAfterLoad(file.name);
 
-        // 2. Upload to server in background so user can share it
+        // 2. Upload to server in background USING XHR (For Progress Tracking)
         const formData = new FormData();
         formData.append('pdf', file);
         
-        fetch('upload.php', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) currentBookUrl = data.path; // Store server path
-        }).catch(err => console.error("Upload for sharing failed", err));
+        statusEl.textContent = '⏳ Uploading for Share Link... 0%';
+        if(progressContainer) progressContainer.style.display = 'block';
+        if(progressBar) progressBar.style.width = '0%';
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'upload.php', true);
+
+        // Progress event listener
+        xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                if(progressBar) progressBar.style.width = percentComplete + '%';
+                statusEl.textContent = `⏳ Uploading... ${percentComplete}%`;
+            }
+        };
+
+        // When upload finishes completely
+        xhr.onload = function() {
+            if(progressContainer) progressContainer.style.display = 'none';
+
+            if (xhr.status === 200) {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    if (data.success) {
+                        currentBookUrl = data.path; 
+                        statusEl.textContent = `✅ Book Loaded & Link Ready to Share!`;
+                    } else {
+                        throw new Error(data.error || "Server rejected the upload");
+                    }
+                } catch (e) {
+                    uploadErrorMessage = "Server Error (Is your file > 2MB?): " + xhr.responseText.substring(0, 50);
+                    statusEl.textContent = `⚠️ Local View OK, BUT Share Upload Failed: ${e.message}`;
+                }
+            } else {
+                uploadErrorMessage = `HTTP Error ${xhr.status}: File might be too large for PHP config.`;
+                statusEl.textContent = `⚠️ Local View OK, BUT Share Upload Failed: ${uploadErrorMessage}`;
+            }
+        };
+
+        // On Network Error
+        xhr.onerror = function() {
+            if(progressContainer) progressContainer.style.display = 'none';
+            uploadErrorMessage = "Network connection failed during upload.";
+            statusEl.textContent = `⚠️ Local View OK, BUT Share Upload Failed: Network Error`;
+        };
+
+        xhr.send(formData);
 
     } catch (error) {
-        statusEl.textContent = '❌ Error loading PDF file';
+        statusEl.textContent = '❌ Error loading PDF file natively';
     }
 }
 
 // Common function to setup UI after PDF is loaded
 async function setupViewerAfterLoad(bookName) {
     document.getElementById('navigationControls').style.display = 'flex';
-    document.getElementById('extraControls').style.display = 'flex'; // Show Fullscreen & Share
-    document.getElementById('loadingStatus').textContent = `✅ Loaded: ${bookName}`;
+    document.getElementById('extraControls').style.display = 'flex'; 
+    document.getElementById('totalPages').textContent = totalPages;
     await renderPages();
 }
+
+// 3D Render Pages Logic
 async function renderPages() {
     const viewer = document.getElementById('bookViewer');
     viewer.innerHTML = `<div class="book"><div id="pages" class="pages"></div></div>`;
@@ -134,6 +187,7 @@ function nextPage() {
     const unflippedOdd = document.querySelector('.page:nth-child(odd):not(.flipped)');
     if (unflippedOdd) unflippedOdd.click();
 }
+
 function toggleFullScreen() {
     const viewer = document.getElementById('bookViewer');
     if (!document.fullscreenElement) {
@@ -146,16 +200,19 @@ function toggleFullScreen() {
 }
 
 function shareBook() {
-    const shareBtn = document.getElementById('shareBtn');
+    if (uploadErrorMessage) {
+        alert("❌ SHARE FAILED: " + uploadErrorMessage + "\n\n💡 PRO TIP: Aapki PDF 2MB se badi hai kya? Agar haan, toh apne XAMPP/Server mein php.ini file kholkar 'upload_max_filesize = 50M' karein.");
+        return;
+    }
+    
     if (!currentBookUrl) {
-        alert("Please wait for the book to finish uploading to the server before sharing!");
+        alert("⏳ File abhi server par upload ho rahi hai... Progress bar check kariye!");
         return;
     }
 
-    // Create the full shareable URL
     const shareUrl = window.location.origin + window.location.pathname + '?book=' + encodeURIComponent(currentBookUrl);
+    const shareBtn = document.getElementById('shareBtn');
     
-    // Copy to clipboard
     navigator.clipboard.writeText(shareUrl).then(() => {
         shareBtn.textContent = '✅ Link Copied!';
         setTimeout(() => shareBtn.textContent = '🔗 Share Link', 2000);

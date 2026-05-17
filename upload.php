@@ -12,18 +12,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['pdf'])) {
         $file = $_FILES['pdf'];
         
-        // Validate file
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mimeType = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
-        
-        if ($mimeType !== 'application/pdf') {
+        // 1. Check for basic PHP upload errors
+        if ($file['error'] !== UPLOAD_ERR_OK) {
             http_response_code(400);
-            echo json_encode(['error' => 'Only PDF files are allowed']);
+            echo json_encode(['error' => 'Upload error code: ' . $file['error'] . ' (Shayad file size php.ini limit se bada hai)']);
             exit;
         }
         
-        // Save file
+        // 2. NAYA LOGIC: Safe PDF Validation (Bina finfo_open ke)
+        $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $mimeType = $file['type']; // Browser dwara bheja gaya MIME type
+        
+        if ($fileExtension !== 'pdf' || $mimeType !== 'application/pdf') {
+            http_response_code(400);
+            echo json_encode(['error' => 'Only PDF files are allowed.']);
+            exit;
+        }
+        
+        // 3. Save file safely
         $filename = uniqid() . '_' . basename($file['name']);
         $filepath = $uploadsDir . '/' . $filename;
         
@@ -35,11 +41,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         } else {
             http_response_code(500);
-            echo json_encode(['error' => 'Failed to upload file']);
+            echo json_encode(['error' => 'Failed to move uploaded file. Server permission issue.']);
         }
     } else {
         http_response_code(400);
-        echo json_encode(['error' => 'No file provided']);
+        echo json_encode(['error' => 'No file provided. (Shayad file 8MB/POST limit se badi hai)']);
     }
 }
 ?>
